@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="bamonC：Go、Gin、PostgreSQL 与 Redis 驱动的任务调度系统作品集。">
+  <title>bamonC · Backend Portfolio</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="hero">
+    <nav class="nav shell" aria-label="主导航">
+      <a class="brand" href="#top"><span class="brand-mark">bC</span>bamonC</a>
+      <div class="nav-links">
+        <a href="#architecture">架构</a>
+        <a href="#code">代码</a>
+        <a class="button button-small" href="downloads/bamonC-anonymized.zip" download>下载 ZIP</a>
+      </div>
+    </nav>
+
+    <div class="hero-content shell" id="top">
+      <div>
+        <p class="eyebrow">BACKEND ENGINEERING PORTFOLIO</p>
+        <h1>把定时任务、并发协作与可观测状态，组织成一套可靠的 Go 服务。</h1>
+        <p class="lead">基于 Gin、PostgreSQL、Redis 和容器化 OCR 服务的任务调度项目。展示版本保留工程设计与核心实现，校内系统接口及凭据已匿名化。</p>
+        <div class="actions">
+          <a class="button" href="#code">浏览核心代码</a>
+          <a class="button button-ghost" href="downloads/bamonC-anonymized.zip" download>获取匿名化源码</a>
+        </div>
+      </div>
+      <aside class="terminal" aria-label="项目技术概览">
+        <div class="terminal-bar"><i></i><i></i><i></i><span>project.yaml</span></div>
+        <pre><code><span>language:</span> Go
+<span>http:</span> Gin
+<span>storage:</span> PostgreSQL + Redis
+<span>scheduling:</span> cron
+<span>delivery:</span> Docker Compose
+<span>status:</span> portfolio_sanitized</code></pre>
+      </aside>
+    </div>
+  </header>
+
+  <main>
+    <section class="metrics shell" aria-label="项目亮点">
+      <article><strong>5</strong><span>清晰分层</span><small>router / controller / service / model / task</small></article>
+      <article><strong>2</strong><span>持久化组件</span><small>PostgreSQL + Redis</small></article>
+      <article><strong>3</strong><span>容器化服务</span><small>Go API + OCR + data services</small></article>
+      <article><strong>0</strong><span>公开真实端点</span><small>运行配置完全外置</small></article>
+    </section>
+
+    <section class="section shell" id="architecture">
+      <div class="section-heading">
+        <p class="eyebrow">SYSTEM DESIGN</p>
+        <h2>职责清楚，链路可追踪</h2>
+        <p>从 HTTP 管理界面到后台调度任务，依赖按边界拆分；短生命周期状态进入 Redis，业务数据由 PostgreSQL 持久化。</p>
+      </div>
+      <div class="flow" aria-label="系统架构">
+        <div><b>Web UI</b><span>操作与状态查看</span></div><em>→</em>
+        <div><b>Gin API</b><span>认证与参数校验</span></div><em>→</em>
+        <div><b>Services</b><span>领域逻辑</span></div><em>→</em>
+        <div><b>Tasks</b><span>cron 与并发编排</span></div>
+        <div class="flow-store"><b>PostgreSQL / Redis</b><span>持久化与协作状态</span></div>
+      </div>
+      <div class="feature-grid">
+        <article><span>01</span><h3>可配置调度</h3><p>定时表达式进入系统配置，运行时可重建任务调度器。</p></article>
+        <article><span>02</span><h3>并发任务编排</h3><p>后台任务按用户与资源组织，配合状态缓存完成协作。</p></article>
+        <article><span>03</span><h3>完整服务分层</h3><p>路由、控制器、服务、模型与请求适配器各自保持单一职责。</p></article>
+        <article><span>04</span><h3>安全公开版本</h3><p>上游地址、路径、认证头和签名材料全部由环境变量注入。</p></article>
+      </div>
+    </section>
+
+    <section class="section code-section" id="code">
+      <div class="shell">
+        <div class="section-heading split-heading">
+          <div><p class="eyebrow">SOURCE EXPLORER</p><h2>核心代码在线查看</h2></div>
+          <p>选择文件即可浏览匿名化后的真实实现。下载包包含完整的公开源码，不含真实接口、凭据、测试数据与识别性截图。</p>
+        </div>
+        <div class="code-browser">
+          <div class="file-list" id="fileList" role="tablist" aria-label="源码文件"></div>
+          <div class="code-panel">
+            <div class="code-toolbar"><span id="currentFile">加载中…</span><button id="copyCode" type="button">复制代码</button></div>
+            <pre><code id="sourceCode">正在加载源码…</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta shell">
+      <div><p class="eyebrow">SANITIZED SOURCE</p><h2>查看完整工程结构</h2><p>ZIP 可直接用于代码审阅；内部服务相关配置需由获授权的运行环境提供。</p></div>
+      <a class="button button-light" href="downloads/bamonC-anonymized.zip" download>下载匿名化 ZIP</a>
+    </section>
+  </main>
+
+  <footer class="shell"><span>bamonC · Portfolio Edition</span><span>Go / Gin / PostgreSQL / Redis</span></footer>
+  <script src="assets/app.js"></script>
+</body>
+</html>

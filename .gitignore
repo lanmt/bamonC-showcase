@@ -1,0 +1,68 @@
+# ========================
+# Go
+# ========================
+# Compiled binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bamonC
+
+# Test output
+*.test
+*.out
+
+# Go module cache / vendor
+vendor/
+.env
+
+# Build artifacts
+/bin/
+/dist/
+
+# ========================
+# Docker volumes / data
+# ========================
+postgres-data/
+
+# ========================
+# Large binary/archive files
+# ========================
+*.tar
+*.tar.gz
+*.zip
+!docs/downloads/*.zip
+
+
+# ========================
+# IDE & Editor
+# ========================
+.idea/
+.vscode/
+.cursor/
+*.swp
+*.swo
+*~
+
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================
+# Logs
+# ========================
+*.log
+
+# ========================
+# Generated captcha log images
+# ========================
+static/captcha_logs/
+
+# ========================
+# Qodana
+# ========================
+.qodana/

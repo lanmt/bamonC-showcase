@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户详情编辑</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: none;
+            padding-bottom: 50px;
+        }
+
+        .navbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .navbar-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logout-btn {
+            background: #FEE2E2;
+            color: #DC2626;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover { background: #FECACA; }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .header a {
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .field {
+            margin-bottom: 1.25rem;
+        }
+
+        .label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        input[type="text"], input[type="password"], input[type="time"], select, textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+            background: #FAFAFA;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #FFF;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .readonly {
+            padding: 0.75rem 1rem;
+            background: #F3F4F6;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.2s;
+            margin-right: 0.5rem;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: #E5E7EB; color: #374151; }
+        .btn-secondary:hover { background: #D1D5DB; }
+        .btn-info { background: #3B82F6; color: white; }
+        .btn-info:hover { background: #2563EB; }
+        .btn-warning { background: #F59E0B; color: white; margin-bottom: 10px; }
+        .btn-warning:hover { background: #D97706; }
+        
+        .label-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .label-item {
+            position: relative;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            user-select: none;
+            background-color: #F9FAFB;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .label-item:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .label-item.active {
+            background-color: #EEF2FF;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .label-item.add-item {
+            background-color: #FFF;
+            border: 1px dashed var(--text-muted);
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #EF4444;
+            font-size: 1.2rem;
+            line-height: 1;
+            padding: 0;
+            margin: 0;
+            margin-left: 0.25rem;
+            cursor: pointer;
+        }
+        .delete-btn:hover { color: #B91C1C; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            animation: scaleIn 0.2s ease-out;
+        }
+
+        @keyframes scaleIn { from {transform: scale(0.95); opacity:0;} to {transform: scale(1); opacity:1;} }
+
+        .modal-content h3 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-content input, .modal-content select { margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">BamonC</a>
+        <div>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>编辑用户配置</h1>
+            <a href="/">← 返回控制台</a>
+        </div>
+
+        <div class="card">
+            <h2>账户安全</h2>
+            <div class="field" style="display:flex; gap:1rem; align-items:flex-end;">
+                <div style="flex:1;">
+                    <label class="label">修改密码 (不填则不修改)</label>
+                    <input type="password" id="newPassword" placeholder="新密码">
+                </div>
+                <button type="button" class="btn-primary" onclick="updatePassword()">更新密码</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>配置参数</h2>
+            <form id="userForm">
+                <div class="field">
+                    <label class="label">ID</label>
+                    <span id="id" class="readonly"></span>
+                </div>
+                <div class="field">
+                    <label class="label">Username</label>
+                    <span id="username" class="readonly"></span>
+                </div>
+                <div class="field">
+                    <label class="label">Point</label>
+                    <input type="text" id="point">
+                </div>
+                <div class="field">
+                    <label class="label" id="authLabel">Auth</label>
+                    <textarea id="auth"></textarea>
+                </div>
+                <div style="display:flex; gap:1rem;">
+                    <div class="field" style="flex:1;">
+                        <label class="label">RelayUntil</label>
+                        <input type="time" id="relayUntil">
+                    </div>
+                    <div class="field" style="flex:1;">
+                        <label class="label">RelayEnabled</label>
+                        <select id="relayEnabled">
+                            <option value="true">是</option>
+                            <option value="false">否</option>
+                        </select>
+                    </div>
+                    <div class="field" style="flex:1;">
+                        <label class="label">Enabled (总开关)</label>
+                        <select id="enabled">
+                            <option value="true">是</option>
+                            <option value="false">否</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field" style="margin-top: 1rem;">
+                    <label class="label">Buddy 列表</label>
+                    <button type="button" id="syncBuddyBtn" class="btn-warning">同步 Buddy 列表</button>
+                    <div id="buddyContainer" class="label-container"></div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Court 列表</label>
+                    <div id="courtContainer" class="label-container"></div>
+                </div>
+
+                <div class="field" style="text-align:right; margin-top: 2rem;">
+                    <button type="button" id="testBtn" class="btn-info">执行一次抢场测试</button>
+                    <button type="button" id="resetBtn" class="btn-secondary">刷新页面</button>
+                    <button type="submit" class="btn-primary">保存配置</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">添加项</h3>
+            <div id="modalInputs"></div>
+            <div style="text-align:right; margin-top:1rem;">
+                <button id="cancelAdd" class="btn-secondary">取消</button>
+                <button id="confirmAdd" class="btn-primary">确定添加</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const venueMap = { "主馆":38, "副馆":39 };
+        const courtMap = {
+            "主馆": { "1":127,"2":128,"3":129,"4":130,"5":131,"6":132,"7":133,"8":134,"9":135,"10":136,"11":137,"12":142 },
+            "副馆": { "17":143,"18":144,"19":145,"20":146,"21":147,"22":148,"23":149,"24":150}
+        };
+        const mainTimeStart = 8688;
+        const viceTimeStart = 9068;
+        const timePerDay = 15;
+
+        let targetUsername = new URLSearchParams(window.location.search).get('username');
+        let buddies=[], courts=[], selectedBuddyIDObj=null;
+        
+        async function init() {
+            try {
+                const res = await fetch('/api/check_session');
+                if (!res.ok) throw new Error();
+                const session = await res.json();
+                
+                if (!targetUsername) targetUsername = session.username;
+
+                await loadUserData();
+                document.body.style.display = 'block';
+            } catch(e) {
+                window.location.href = '/login.html';
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/login.html';
+        }
+
+        function formatTimeRelative(isoStr){
+            if(!isoStr) return '';
+            const date=new Date(isoStr), now=new Date();
+            const diffMs=now-date;
+            const diffMinutes=Math.floor(diffMs/1000/60);
+            const diffHours=Math.floor(diffMinutes/60);
+            const diffDays=Math.floor(diffHours/24);
+            if(diffMinutes<1) return '刚刚';
+            if(diffMinutes<60) return `${diffMinutes} 分钟前`;
+            if(diffHours<24) return `${diffHours} 小时前`;
+            if(diffDays<7) return `${diffDays} 天前`;
+            const pad=n=>n.toString().padStart(2,'0');
+            return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        }
+
+        async function loadUserData() {
+            try {
+                const r = await fetch(`/api/get_user/${encodeURIComponent(targetUsername)}`);
+                if (!r.ok) {
+                    alert('获取失败，没有权限操作该用户');
+                    window.location.href = '/';
+                    return;
+                }
+                const res = await r.json();
+                const data = res.data;
+
+                document.getElementById('id').textContent = data.ID;
+                document.getElementById('username').textContent = data.Username;
+                document.getElementById('point').value = data.Point || '';
+                
+                if(data.AuthUpdatedAt){ 
+                    document.getElementById('authLabel').textContent=`Auth (修改于 ${formatTimeRelative(data.AuthUpdatedAt)})`; 
+                }
+                
+                const authEl = document.getElementById('auth');
+                if(data.Auth) { 
+                    authEl.value = data.Auth; 
+                    authEl.style.color = '#111827'; 
+                } else { 
+                    authEl.value = '留空不修改该字段'; 
+                    authEl.style.color = '#9CA3AF'; 
+                }
+
+                document.getElementById('relayUntil').value = data.RelayUntil ? data.RelayUntil.split('T')[1].slice(0,5) : '';
+                document.getElementById('relayEnabled').value = data.RelayEnabled ? 'true' : 'false';
+                document.getElementById('enabled').value = data.Enabled ? 'true' : 'false';
+
+                selectedBuddyIDObj = { BuddyID: data.SelectBuddyID };
+
+                loadBuddiesAndCourts();
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        async function loadBuddiesAndCourts() {
+            fetch(`/api/get_buddies/${encodeURIComponent(targetUsername)}`).then(r=>r.json()).then(r=>{ 
+                if(r.buddies){ buddies=r.buddies; renderBuddyLabels(); } 
+            });
+            fetch(`/api/get_courts/${encodeURIComponent(targetUsername)}`).then(r=>r.json()).then(r=>{ 
+                if(r.courts){ courts=r.courts; renderCourtLabels(); }
+            });
+        }
+
+        document.getElementById('auth').addEventListener('focus', function() { 
+            if(this.value==='留空不修改该字段'){ this.value=''; this.style.color='#111827'; } 
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', loadUserData);
+
+        document.getElementById('testBtn').addEventListener('click', function(){
+            alert('已向服务器发送抢场测试指令...');
+            fetch(`/api/submit_test/${encodeURIComponent(targetUsername)}`);
+        });
+
+        async function updatePassword() {
+            const pwd = document.getElementById('newPassword').value.trim();
+            if (!pwd) return alert('请输入新密码');
+            if(!confirm('确定修改密码吗？')) return;
+
+            try {
+                const res = await fetch(`/api/update_user/${encodeURIComponent(targetUsername)}`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({ Password: pwd })
+                });
+                if(res.ok) {
+                    alert('密码修改成功');
+                    document.getElementById('newPassword').value = '';
+                } else {
+                    const err = await res.json();
+                    alert(err.error || '修改失败');
+                }
+            } catch(e) { alert('网络错误'); }
+        }
+
+        // --- Core logic adapted from original user_detail.html ---
+
+        document.getElementById('syncBuddyBtn').addEventListener('click', () => {
+            const currentSelectedID = selectedBuddyIDObj ? selectedBuddyIDObj.BuddyID : null;
+            fetch(`/api/sync_buddy/${encodeURIComponent(targetUsername)}`)
+                .then(r => r.text())
+                .then(() => {
+                    alert('同步完成');
+                    return fetch(`/api/get_buddies/${encodeURIComponent(targetUsername)}`);
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.buddies) {
+                        buddies = data.buddies;
+                        if (currentSelectedID) {
+                            const found = buddies.find(b => b.BuddyID === currentSelectedID);
+                            selectedBuddyIDObj = found || null;
+                        } else { selectedBuddyIDObj = null; }
+                        renderBuddyLabels();
+                    }
+                })
+                .catch(err => { alert('同步失败'); });
+        });
+
+        function convertCourt(c) {
+            const venueName = c.VenueSiteID === 38 ? "主馆" : "副馆";
+            let courtNo = "";
+            Object.keys(courtMap[venueName]).forEach(no => { if(courtMap[venueName][no] === c.CourtID) courtNo = no; });
+            function convertTimeID(timeID) {
+                if (!timeID) return null;
+                const start = venueName === "主馆" ? mainTimeStart : viceTimeStart;
+                const index = timeID - start;
+                const dayIndex = Math.floor(index / timePerDay);
+                const slotIndex = index % timePerDay;
+                const weekArr = ["周一","周二","周三","周四","周五","周六","周日"];
+                const h1 = 7 + slotIndex, h2 = h1 + 1;
+                return `${weekArr[dayIndex]} ${h1}:00-${h2}:00`;
+            }
+            return { ID: c.ID, Venue: venueName, CourtNo: courtNo, Time1Label: convertTimeID(c.Time1ID), Time2Label: convertTimeID(c.Time2ID) };
+        }
+
+        function renderBuddyLabels(){
+            const container = document.getElementById('buddyContainer');
+            container.innerHTML='';
+            buddies.forEach(b=>{
+                const label = document.createElement('div');
+                label.className = 'label-item';
+                if(selectedBuddyIDObj && b.BuddyID === selectedBuddyIDObj.BuddyID){ label.classList.add('active'); }
+                label.textContent = b.BuddyName;
+                label.addEventListener('click', ()=>{ 
+                    selectedBuddyIDObj=b; 
+                    document.querySelectorAll('#buddyContainer .label-item').forEach(x=>x.classList.remove('active')); 
+                    label.classList.add('active'); 
+                });
+                container.appendChild(label);
+            });
+        }
+
+        function renderCourtLabels(){
+            const container = document.getElementById('courtContainer');
+            container.innerHTML = '';
+            courts.forEach(cRaw => {
+                const c = convertCourt(cRaw);
+                const label = document.createElement('div');
+                label.className = 'label-item active';
+                label.textContent = `${c.Venue} ${c.CourtNo}场 ${c.Time1Label}` + (c.Time2Label ? `, ${c.Time2Label}` : "");
+                
+                const delBtn = document.createElement('button');
+                delBtn.className = 'delete-btn';
+                delBtn.textContent = '×';
+                delBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (confirm(`确定删除吗？`)) {
+                        fetch(`/api/del_court/${encodeURIComponent(targetUsername)}?id=${c.ID}`, { method: 'DELETE' })
+                            .then(r => r.json()).then(r => { courts = courts.filter(x => x.ID !== c.ID); renderCourtLabels(); });
+                    }
+                });
+                label.appendChild(delBtn);
+                container.appendChild(label);
+            });
+
+            const addLabel = document.createElement('div');
+            addLabel.className = 'label-item add-item';
+            addLabel.textContent = '+ 添加场地';
+            addLabel.addEventListener('click', ()=>{ openAddModal('court'); });
+            container.appendChild(addLabel);
+        }
+
+        const addModal=document.getElementById('addModal');
+        const modalTitle=document.getElementById('modalTitle');
+        const modalInputs=document.getElementById('modalInputs');
+
+        function openAddModal(type){
+            modalTitle.textContent = '添加 Court 场地';
+            let venueOptions = `<option value="">请选择馆</option>`;
+            Object.keys(venueMap).forEach(v=>{ venueOptions+=`<option value="${v}">${v}</option>`; });
+            let timeOptions='';
+            for(let i=0;i<15;i++){ let h1=7+i; let h2=h1+1; timeOptions+=`<option value="${i}">${h1}:00-${h2}:00</option>`; }
+            
+            modalInputs.innerHTML=`
+                <select id="newCourtVenue">${venueOptions}</select>
+                <select id="newCourtNo"><option value="">请选择场地号</option></select>
+                <label>开始时间（Time1）</label>
+                <select id="newTime1">${timeOptions}</select>
+                <label>连带时间（Time2, 可空）</label>
+                <select id="newTime2"><option value="">可空</option>${timeOptions}</select>
+            `;
+            setTimeout(()=>{
+                const venueSelect = modalInputs.querySelector('#newCourtVenue');
+                const courtNoSelect = modalInputs.querySelector('#newCourtNo');
+                venueSelect.addEventListener('change', ()=>{
+                    const v = venueSelect.value;
+                    courtNoSelect.innerHTML='<option value="">请选择场地号</option>';
+                    if(courtMap[v]){ 
+                        Object.keys(courtMap[v]).forEach(num=>{ 
+                            const opt = document.createElement('option'); 
+                            opt.value=num; opt.textContent=num; 
+                            courtNoSelect.appendChild(opt); 
+                        }); 
+                    }
+                });
+            },0);
+            
+            addModal.style.display='flex';
+        }
+
+        document.getElementById('cancelAdd').addEventListener('click', ()=>{ addModal.style.display='none'; });
+        window.addEventListener('click', e=>{ if(e.target==addModal) addModal.style.display='none'; });
+
+        document.getElementById('confirmAdd').addEventListener('click', ()=>{
+            const userID = Number(document.getElementById('id').textContent);
+            const venue=document.getElementById('newCourtVenue').value;
+            const courtNo=document.getElementById('newCourtNo').value;
+            const time1Index=document.getElementById('newTime1').value;
+            const time2Index=document.getElementById('newTime2').value;
+            if(!venue||!courtNo||time1Index===''){ alert('场馆、场地号、Time1必须选择'); return; }
+
+            let VenueSiteID=venueMap[venue];
+            let CourtID=courtMap[venue][courtNo];
+            let baseTimeID = venue==='主馆'?mainTimeStart:viceTimeStart;
+            function isBetweenMidnightAndFive() { const hour = new Date().getHours(); return hour >=0 && hour<5; }
+            const today = new Date();
+            const afterTomorrow = new Date(today);
+            let a=2; if(isBetweenMidnightAndFive()) a--; afterTomorrow.setDate(today.getDate()+a);
+            const day = afterTomorrow.getDay();
+            let offsetTimeID = ((day+6)%7)*15;
+            let Time1ID = baseTimeID + Number(time1Index)+offsetTimeID;
+            let Time2ID = (time2Index==='')?null:(baseTimeID + Number(time2Index)+offsetTimeID);
+            
+            if(Time2ID!==null){ 
+                if(Math.floor((Time2ID-baseTimeID)/timePerDay)!==Math.floor((Time1ID-baseTimeID)/timePerDay) || Math.abs(Time2ID-Time1ID)!==1){ 
+                    alert('Time2必须在同一天且与Time1相邻'); return; 
+                } 
+            }
+            
+            fetch(`/api/add_court/${encodeURIComponent(targetUsername)}`, {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({UserID:userID, VenueSiteID, CourtID, Time1ID, Time2ID})
+            }).then(r=>r.json()).then(r=>{ 
+                alert(r.message); 
+                if(r.court){ 
+                    courts.push({...r.court, Venue:venue, CourtNo:courtNo, Time1ID, Time2ID}); 
+                    renderCourtLabels(); 
+                    addModal.style.display='none'; 
+                } 
+            });
+        });
+
+        document.getElementById('userForm').addEventListener('submit', e=>{
+            e.preventDefault();
+            const relayUntilInput = document.getElementById('relayUntil').value;
+            let relayUntil = null;
+            if(relayUntilInput){ 
+                const today=new Date(); 
+                const [hh, mm]=relayUntilInput.split(':').map(Number); 
+                today.setHours(hh); today.setMinutes(mm); today.setSeconds(0); today.setMilliseconds(0); 
+                relayUntil = today.toISOString(); 
+            }
+
+            const payload = {
+                Id: Number(document.getElementById('id').textContent),
+                Username: targetUsername,
+                Point: document.getElementById('point').value,
+                Auth: document.getElementById('auth').value==='留空不修改该字段'?'':document.getElementById('auth').value,
+                RelayUntil: relayUntil,
+                RelayEnabled: document.getElementById('relayEnabled').value==='true',
+                Enabled: document.getElementById('enabled').value==='true',
+                SelectBuddyID: selectedBuddyIDObj ? selectedBuddyIDObj.BuddyID : null
+            };
+            
+            if(payload.RelayEnabled && !payload.RelayUntil){ alert("RelayEnabled 设为【是】时，必须填写 RelayUntil 时间！"); return }
+
+            fetch(`/api/update_user/${encodeURIComponent(targetUsername)}`, {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body:JSON.stringify(payload)
+            }).then(r=>r.json()).then(r=>{ 
+                alert(r.message); 
+            }).catch(err=>{ alert('提交失败，请检查网络或控制台错误信息。'); });
+        });
+
+        init();
+    </script>
+</body>
+</html>

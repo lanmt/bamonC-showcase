@@ -1,0 +1,76 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.gin
+    container_name: gin-app
+    environment:
+      TZ: Asia/Shanghai
+      OCR_API: "http://python-flask:5000/ocr_match"
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: appuser
+      DB_PASSWORD: ${DB_PASSWORD:-portfolio-demo-password}
+      DB_NAME: bamonc
+      BC_PORT: 9091
+      REDIS_IP: redis
+      REDIS_PORT: 6379
+    ports:
+      - "9091:9091"
+    depends_on:
+      - redis
+      - postgres
+      - python-flask
+
+  python-flask:
+    build:
+      context: .
+      dockerfile: Dockerfile.flask
+    container_name: python-flask
+    restart: always
+    depends_on:
+      - umi-ocr
+    ports:
+      - "5000:5000"
+    environment:
+      UMI_OCR_URL: "http://umi-ocr:1224/api/ocr"
+
+  umi-ocr:
+    build:
+      context: .
+      dockerfile: Dockerfile.umi-ocr
+      args:
+        HTTP_PROXY: ${HTTP_PROXY:-}
+        HTTPS_PROXY: ${HTTPS_PROXY:-}
+    container_name: umi-ocr
+    environment:
+      HEADLESS: "true"
+    ports:
+      - "1224:1224"
+    restart: always
+
+  postgres:
+    image: m.daocloud.io/docker.io/library/postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-portfolio-demo-password}
+      POSTGRES_DB: bamonc
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: m.daocloud.io/docker.io/library/redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  postgres-data:
+  redis-data:

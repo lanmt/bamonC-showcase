@@ -1,0 +1,42 @@
+FROM m.daocloud.io/docker.io/library/golang:1.25.4-alpine3.22 AS builder
+
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64 \
+    GOPROXY=https://mirrors.aliyun.com/goproxy/,direct \
+    OCR_API="http://127.0.0.1:5000/ocr_match" \
+    DB_HOST=postgres \
+    DB_PORT=5432 \
+    DB_USER=appuser \
+    DB_PASSWORD="portfolio-demo-password" \
+    DB_NAME=bamonc \
+    BC_PORT=9091
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN go build -o server .
+
+FROM m.daocloud.io/docker.io/library/alpine:latest
+
+
+WORKDIR /app
+
+COPY templates ./templates
+
+COPY static ./static
+
+COPY --from=builder /app/server .
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories && \
+    apk update && \
+    apk add tzdata
+    
+EXPOSE 9091
+
+CMD ["./server"]

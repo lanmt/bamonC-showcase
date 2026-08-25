@@ -1,0 +1,33 @@
+FROM m.daocloud.io/docker.io/library/python:3.10-slim
+
+WORKDIR /app
+COPY ./flask-ddddocr.py /app
+
+ENV PYTHONUNBUFFERED=1 \
+    TZ=Asia/Shanghai
+
+# 修改 APT 源为阿里云
+RUN sed -i "s@deb.debian.org@mirrors.aliyun.com@g" /etc/apt/sources.list.d/debian.sources && \
+    sed -i "s@security.debian.org@mirrors.aliyun.com@g" /etc/apt/sources.list.d/debian.sources
+
+# 安装系统依赖
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxrender1 \
+    libxext6 \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# pip 使用清华源
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir flask flask-cors numpy pillow opencv-python requests ddddocr==1.4.11
+
+EXPOSE 5000
+
+CMD ["python", "flask-ddddocr.py"]

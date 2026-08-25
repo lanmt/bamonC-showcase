@@ -1,0 +1,10 @@
+bamonC portfolio edition
+
+This repository is a sanitized portfolio snapshot. The original project
+integrated with an internal campus service, so production API hosts, routes,
+headers, credentials, signing material, test fixtures, and identifying
+screenshots are intentionally excluded.
+
+The public defaults use api.example.invalid and cannot reach the original
+service. Runtime environment variables are required for an authorized,
+compatible upstream implementation.

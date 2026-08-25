@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BamonC - 系统执行日志</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); padding-bottom: 20px; color: var(--text-main); margin: 0; display: none; }
+        .navbar {
+            background-color: var(--card-bg); border-bottom: 1px solid var(--border); padding: 1rem 2rem;
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 2rem;
+        }
+        .navbar-brand { font-size: 1.25rem; font-weight: 700; color: var(--primary); text-decoration: none; }
+        .logout-btn { background: #FEE2E2; color: #DC2626; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .logout-btn:hover { background: #FECACA; }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 1.5rem; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .header h1 { margin: 0; font-size: 1.75rem; font-weight: 700; }
+        .header a { text-decoration: none; color: var(--primary); font-weight: 500; }
+        
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding: 1.5rem; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border); flex-wrap: wrap; gap: 15px; }
+        .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .filters input, .filters select { padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 8px; outline: none; transition: border 0.2s; font-size: 0.95rem; }
+        .filters input[type="text"] { width: 180px; }
+        .filters input:focus, .filters select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        
+        .btn-primary { padding: 0.5rem 1.5rem; border: none; border-radius: 8px; font-size: 0.95rem; cursor: pointer; transition: background 0.2s; font-weight: 600; background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { padding: 0.5rem 1.5rem; border: none; border-radius: 8px; font-size: 0.95rem; cursor: pointer; transition: background 0.2s; font-weight: 600; background: #E5E7EB; color: #374151; }
+        .btn-secondary:hover { background: #D1D5DB; }
+        
+        .page-size-selector select { padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 8px; outline: none; font-size: 0.95rem; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        
+        .card { background: var(--card-bg); padding: 1.25rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border); transition: transform 0.2s; display: flex; flex-direction: column; }
+        .card:hover { transform: translateY(-3px); }
+        
+        .card h3 { margin: 0 0 10px; font-size: 1.1rem; display: flex; align-items: center; justify-content: space-between; }
+        .card .badge { background: #EEF2FF; color: var(--primary); font-size: 0.75rem; padding: 4px 8px; border-radius: 9999px; font-weight: 600; }
+        
+        .card .info { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; display: flex; align-items: center; gap: 6px; }
+        .card img { width: 100%; border-radius: 8px; height: auto; object-fit: contain; background: #F9FAFB; border: 1px solid var(--border); margin-top: auto; }
+        
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 40px; margin-bottom: 20px; }
+        .pagination button { padding: 0.5rem 1rem; border: none; border-radius: 8px; background: var(--primary); color: white; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        .pagination button:hover:not(:disabled) { background: var(--primary-hover); }
+        .pagination button:disabled { background: #9CA3AF; cursor: not-allowed; }
+        .pagination span { font-size: 0.95rem; color: var(--text-main); font-weight: 500; }
+        
+        .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); }
+        .empty-state h2 { margin-bottom: 10px; color: var(--text-main); font-size: 1.25rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">BamonC</a>
+        <div>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>系统执行日志</h1>
+            <a href="/">← 返回首页</a>
+        </div>
+
+        <div class="toolbar">
+            <div class="filters">
+                <input type="text" id="usernameInput" placeholder="按用户名查询 (Admin可用)" onkeypress="if(event.key==='Enter') searchLogs()">
+                <input type="date" id="dateInput" title="按日期筛选">
+                <select id="stepInput">
+                    <option value="">所有步骤追踪</option>
+                    <option value="GetCaptcha">获取验证码日志</option>
+                    <option value="CheckCaptcha">图文OCR验证综合(含图)</option>
+                    <option value="SubmitReservation">提交预约抢票结果</option>
+                    <option value="Relay">接力抢票关联日志</option>
+                </select>
+                <button class="btn-primary" onclick="searchLogs()">搜索</button>
+                <button class="btn-secondary" onclick="resetSearch()">重置</button>
+            </div>
+            <div class="page-size-selector">
+                <span style="color: var(--text-muted); font-size: 0.9rem; margin-right: 8px;">每页显示: </span>
+                <select id="pageSize" onchange="changePageSize()">
+                    <option value="12">12</option>
+                    <option value="24" selected>24</option>
+                    <option value="48">48</option>
+                    <option value="96">96</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="grid" class="grid"></div>
+        
+        <div class="pagination">
+            <button id="prevBtn" onclick="prevPage()">上一页</button>
+            <span id="pageInfo">加载中...</span>
+            <button id="nextBtn" onclick="nextPage()">下一页</button>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentUser = null;
+        let currentRole = null;
+
+        async function init() {
+            try {
+                const res = await fetch('/api/check_session');
+                if (!res.ok) throw new Error();
+                const session = await res.json();
+                currentUser = session.username;
+                currentRole = session.role;
+                
+                if (currentRole !== 'admin') {
+                    document.getElementById('usernameInput').value = currentUser;
+                    document.getElementById('usernameInput').disabled = true;
+                }
+                
+                document.body.style.display = 'block';
+                fetchLogs(1);
+            } catch(e) {
+                window.location.href = '/login.html';
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/login.html';
+        }
+
+        function fetchLogs(page) {
+            const pageSize = document.getElementById('pageSize').value;
+            let username = document.getElementById('usernameInput').value.trim();
+            const date = document.getElementById('dateInput').value;
+            let step = document.getElementById('stepInput').value; 
+            
+            if (currentRole !== 'admin') username = currentUser; // Enforce for non-admin
+            
+            let url = username ? `/api/captcha_logs/${encodeURIComponent(username)}?` : `/api/captcha_logs?`;
+            url += `page=${page}&page_size=${pageSize}`;
+            
+            if(date) url += `&date=${encodeURIComponent(date)}`;
+            if(step) url += `&step=${encodeURIComponent(step)}`;
+            
+            fetch(url).then(res => {
+                if(!res.ok) throw new Error('权限不足或接口错误');
+                return res.json();
+            }).then(data => {
+                const grid = document.getElementById('grid');
+                grid.innerHTML = '';
+                
+                if(!data.logs || data.logs.length === 0) {
+                    grid.innerHTML = '<div class="empty-state"><h2>暂无日志记录</h2><p>没有找到匹配的执行日志或验证码记录</p></div>';
+                    document.getElementById('pageInfo').innerText = `第 0 页 / 共 0 页`;
+                    document.getElementById('prevBtn').disabled = true;
+                    document.getElementById('nextBtn').disabled = true;
+                    return;
+                }
+                
+                totalPages = Math.ceil(data.total / data.page_size) || 1;
+                document.getElementById('pageInfo').innerText = `第 ${data.page} 页 / 共 ${totalPages} 页 (共 ${data.total} 条)`;
+                
+                document.getElementById('prevBtn').disabled = data.page <= 1;
+                document.getElementById('nextBtn').disabled = data.page >= totalPages;
+                currentPage = data.page;
+                
+                data.logs.forEach(log => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    const dateObj = new Date(log.CreatedAt);
+                    const formattedDate = dateObj.toLocaleString();
+                    
+                    let contentHtml = '';
+                    
+                    if (log.ImagePath) {
+                        let wordsHtml = '';
+                        if (log.WordList) {
+                            try {
+                                const words = JSON.parse(log.WordList);
+                                if (Array.isArray(words)) {
+                                    wordsHtml = `<div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                        <span style="font-size: 0.85rem; color: var(--text-muted);">目标汉字:</span>
+                                        ${words.map(w => `<span style="background: #EEF2FF; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;">${w}</span>`).join('')}
+                                    </div>`;
+                                }
+                            } catch(e) {}
+                        }
+                        
+                        let statusColor = log.Status === 'Success' ? '#10B981' : '#EF4444';
+                        let statusLabel = log.Status === 'Success' ? '识别成功' : '识别点不足';
+
+                        contentHtml = `
+                            ${wordsHtml}
+                            <div style="font-size: 0.85rem; color: ${statusColor}; font-weight: 600; margin-bottom: 10px;">状态：${statusLabel}</div>
+                            <img src="/static/${log.ImagePath}" alt="Captcha Image" loading="lazy" style="border: 2px solid ${statusColor};">
+                        `;
+                    } else {
+                        let statusColor = '#3B82F6';
+                        if(log.Status === 'Success') statusColor = '#10B981';
+                        else if(log.Status === 'Error') statusColor = '#EF4444';
+                        
+                        contentHtml = `
+                            <div style="flex-grow: 1; padding: 12px; margin-top:5px; background: #F9FAFB; border-left: 4px solid ${statusColor}; border-radius: 8px; font-size: 0.9rem;">
+                                <div style="font-weight: 600; margin-bottom: 8px;">Step: <span style="font-weight: 400;">${log.StepName || '无'}</span></div>
+                                <div style="font-weight: 600; margin-bottom: 8px;">Status: <span style="color: ${statusColor};">${log.Status || 'N/A'}</span></div>
+                                <div style="color: var(--text-muted); line-height: 1.5; word-wrap: break-word;">${log.Message || '没有具体输出'}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    card.innerHTML = `
+                        <h3>
+                            ${log.Username}
+                            <span class="badge">#${log.ID}</span>
+                        </h3>
+                        <div class="info" style="margin-bottom: ${log.ImagePath ? '15px' : '8px'};">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            ${formattedDate}
+                        </div>
+                        ${contentHtml}
+                    `;
+                    grid.appendChild(card);
+                });
+            }).catch(err => {
+                alert(err.message || '获取日志失败');
+            });
+        }
+        
+        function searchLogs() { fetchLogs(1); }
+        
+        function resetSearch() {
+            if (currentRole === 'admin') document.getElementById('usernameInput').value = '';
+            document.getElementById('dateInput').value = '';
+            document.getElementById('stepInput').value = '';
+            fetchLogs(1);
+        }
+        
+        function changePageSize() { fetchLogs(1); }
+        function prevPage() { if(currentPage > 1) fetchLogs(currentPage - 1); }
+        function nextPage() { if(currentPage < totalPages) fetchLogs(currentPage + 1); }
+        
+        init();
+    </script>
+</body>
+</html>

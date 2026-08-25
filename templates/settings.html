@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统参数配置</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: none;
+            padding-bottom: 50px;
+        }
+
+        .navbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .navbar-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logout-btn {
+            background: #FEE2E2;
+            color: #DC2626;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .logout-btn:hover { background: #FECACA; }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .header a {
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main); }
+        .form-group .description { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.4; }
+        .form-group input { 
+            width: 100%; 
+            padding: 0.75rem 1rem; 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            font-size: 0.95rem; 
+            transition: border-color 0.2s; 
+            background: #FAFAFA;
+        }
+        .form-group input:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            background: #FFF;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); 
+        }
+
+        .btn-group { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
+        .btn-primary { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 0.75rem 1.5rem; 
+            border-radius: 8px; 
+            font-weight: 500; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+        }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #111827; color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">BamonC</a>
+        <div>
+            <button class="logout-btn" onclick="logout()">退出登录</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>系统动态参数配置</h1>
+            <a href="/">← 返回控制台</a>
+        </div>
+
+        <div class="card">
+            <h2>任务调度时间设置 (Cron)</h2>
+            
+            <div class="form-group">
+                <label for="captcha_task_cron">获取验证码并提交预约任务 (ReserveTask) 定时表达式</label>
+                <div class="description">控制系统每天何时开始大规模获取验证码、识别验证码并即刻发送预约抢场。Cron 参数顺序（支持秒）: 秒 分 时 日 月 星期</div>
+                <input type="text" id="captcha_task_cron" placeholder="例如: 00 58 11 * * *">
+            </div>
+
+            <div class="form-group">
+                <label for="update_time_id_cron">参数更新任务 (UpdateTimeIdTask) 定时表达式</label>
+                <div class="description">系统自动刷新场馆参数配置等信息的时间。</div>
+                <input type="text" id="update_time_id_cron" placeholder="例如: 00 00 5 * * *">
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>业务逻辑规则设置</h2>
+            
+            <div class="form-group">
+                <label for="captcha_cutoff_time">获取验证码截至执行时间</label>
+                <div class="description">防止死循环：如果当前时间超过配置的时间，将停止继续发起获取验证码的请求。(格式示例: 23:00 或 23:00:00)</div>
+                <input type="time" id="captcha_cutoff_time" step="1">
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn-primary" onclick="saveConfigs()">保存全部设置并重启调度</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast">操作成功</div>
+
+    <script>
+        async function init() {
+            try {
+                const res = await fetch('/api/check_session');
+                if (!res.ok) throw new Error();
+                const session = await res.json();
+                if (session.role !== 'admin') {
+                    alert('需要管理员权限');
+                    window.location.href = '/';
+                    return;
+                }
+                
+                loadConfigs();
+                document.body.style.display = 'block';
+            } catch(e) {
+                window.location.href = '/login.html';
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/login.html';
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.background = isError ? '#EF4444' : '#10B981';
+            toast.className = 'toast show';
+            setTimeout(() => { toast.className = 'toast'; }, 3000);
+        }
+
+        function loadConfigs() {
+            fetch('/api/system_config')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.configs) {
+                        const cfg = data.configs;
+                        if (cfg.captcha_task_cron) document.getElementById('captcha_task_cron').value = cfg.captcha_task_cron;
+                        if (cfg.update_time_id_cron) document.getElementById('update_time_id_cron').value = cfg.update_time_id_cron;
+                        if (cfg.captcha_cutoff_time) document.getElementById('captcha_cutoff_time').value = cfg.captcha_cutoff_time;
+                    }
+                })
+                .catch(err => { showToast('无法读取配置', true); });
+        }
+
+        function saveConfigs() {
+            const body = {
+                captcha_task_cron: document.getElementById('captcha_task_cron').value.trim(),
+                update_time_id_cron: document.getElementById('update_time_id_cron').value.trim(),
+                captcha_cutoff_time: document.getElementById('captcha_cutoff_time').value.trim()
+            };
+
+            fetch('/api/system_config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            })
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(res => {
+                if(res.status === 200) { showToast('保存成功，任务已重新加载！'); } 
+                else { showToast(res.body.message || '保存失败', true); }
+            })
+            .catch(err => { showToast('网络错误', true); });
+        }
+
+        init();
+    </script>
+</body>
+</html>
